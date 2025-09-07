@@ -1,304 +1,306 @@
 /**
- * Engine.js Otimizado - Fisioterapia Pós-Cirurgia Plástica
+ * Engine.js Otimizado - Fisioterapia
  */
 
-// ===== ESTADO E CONFIGURAÇÃO =====
+// Estado
 const App = {
-    elements: {},
-    state: { currentTestimonial: 0, isMenuOpen: false, isLoading: false },
-    config: { testimonialInterval: 5000, scrollOffset: 80 }
+    e: {},
+    s: { ct: 0, im: false, il: false }
 };
 
-// ===== UTILITÁRIOS =====
-const utils = {
-    debounce: (func, wait) => {
-        let timeout;
-        return (...args) => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), wait);
+// Utils
+const u = {
+    d: (f, w) => {
+        let t;
+        return (...a) => {
+            clearTimeout(t);
+            t = setTimeout(() => f(...a), w);
         };
     },
-    throttle: (func, limit) => {
-        let inThrottle;
-        return (...args) => {
-            if (!inThrottle) {
-                func(...args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
+    th: (f, l) => {
+        let i;
+        return (...a) => {
+            if (!i) {
+                f(...a);
+                i = true;
+                setTimeout(() => i = false, l);
             }
         };
     },
-    smoothScrollTo: el => window.scrollTo({ top: el.offsetTop - App.config.scrollOffset, behavior: 'smooth' }),
-    isElementVisible: el => {
-        const rect = el.getBoundingClientRect();
-        return rect.top < window.innerHeight * 0.8 && rect.bottom > 0;
-    },
-    isValidEmail: email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-    isValidPhone: phone => /^\(?\d{2}\)?[\s-]?9?\d{4}[\s-]?\d{4}$/.test(phone.replace(/\D/g, '')),
-    formatPhone: phone => {
-        const cleaned = phone.replace(/\D/g, '');
-        return cleaned.length === 11 ? cleaned.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3') :
-               cleaned.length === 10 ? cleaned.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3') : phone;
+    ss: el => window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' }),
+    ve: el => el.getBoundingClientRect().top < window.innerHeight * 0.8,
+    ve2: e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
+    vp: p => /^\(?\d{2}\)?[\s-]?9?\d{4}[\s-]?\d{4}$/.test(p.replace(/\D/g, '')),
+    fp: p => {
+        const c = p.replace(/\D/g, '');
+        return c.length === 11 ? c.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3') :
+               c.length === 10 ? c.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3') : p;
     }
 };
 
-// ===== CACHE DOM E EVENTOS =====
+// DOM
 const DOM = {
-    cache: () => {
-        App.elements = {
-            navbar: document.querySelector('.navbar'),
-            navToggle: document.querySelector('.nav-toggle'),
-            navMenu: document.querySelector('.nav-menu'),
-            navLinks: document.querySelectorAll('.nav-link'),
-            testimonialItems: document.querySelectorAll('.testimonial-item'),
-            testimonialDots: document.querySelectorAll('.dot'),
-            contactForm: document.querySelector('.contact-form'),
-            formInputs: document.querySelectorAll('.contact-form input, .contact-form select, .contact-form textarea'),
-            fadeElements: document.querySelectorAll('.service-card, .highlight-item, .about-description')
+    c: () => {
+        App.e = {
+            n: document.querySelector('.navbar'),
+            nt: document.querySelector('.nav-toggle'),
+            nm: document.querySelector('.nav-menu'),
+            nl: document.querySelectorAll('.nav-link'),
+            ti: document.querySelectorAll('.testimonial-item'),
+            td: document.querySelectorAll('.dot'),
+            cf: document.querySelector('.contact-form'),
+            fi: document.querySelectorAll('.contact-form input, .contact-form select, .contact-form textarea'),
+            fe: document.querySelectorAll('.service-card, .highlight-item, .about-description')
         };
     },
-    bindEvents: () => {
-        const { elements } = App;
-        elements.navToggle?.addEventListener('click', Navigation.toggleMenu);
-        elements.navLinks.forEach(link => link.addEventListener('click', Navigation.handleNavClick));
-        elements.testimonialDots.forEach(dot => dot.addEventListener('click', Testimonials.handleDotClick));
-        elements.contactForm?.addEventListener('submit', Form.handleSubmit);
-        elements.formInputs.forEach(input => {
-            input.addEventListener('blur', Form.validateField);
-            input.addEventListener('input', Form.clearErrors);
+    b: () => {
+        const { e } = App;
+        e.nt?.addEventListener('click', Nav.tm);
+        e.nl.forEach(l => l.addEventListener('click', Nav.hnc));
+        e.td.forEach(d => d.addEventListener('click', Test.hdc));
+        e.cf?.addEventListener('submit', Form.hs);
+        e.fi.forEach(i => {
+            i.addEventListener('blur', Form.vf);
+            i.addEventListener('input', Form.ce);
         });
-        window.addEventListener('scroll', utils.throttle(ScrollEffects.handleScroll, 16));
-        window.addEventListener('resize', utils.debounce(Layout.handleResize, 250));
+        window.addEventListener('scroll', u.th(Scroll.hs, 16));
+        window.addEventListener('resize', u.d(Layout.hr, 250));
     }
 };
 
-// ===== NAVEGAÇÃO =====
-const Navigation = {
-    toggleMenu: () => {
-        App.state.isMenuOpen = !App.state.isMenuOpen;
-        const { navMenu, navToggle } = App.elements;
-        navMenu.classList.toggle('active', App.state.isMenuOpen);
-        navToggle.classList.toggle('active', App.state.isMenuOpen);
-        document.body.style.overflow = App.state.isMenuOpen ? 'hidden' : '';
+// Nav
+const Nav = {
+    tm: () => {
+        App.s.im = !App.s.im;
+        const { nm, nt } = App.e;
+        nm.classList.toggle('active', App.s.im);
+        nt.classList.toggle('active', App.s.im);
+        document.body.style.overflow = App.s.im ? 'hidden' : '';
     },
-    handleNavClick: e => {
+    hnc: e => {
         e.preventDefault();
-        const href = e.target.getAttribute('href');
-        if (href?.startsWith('#')) {
-            const target = document.querySelector(href);
-            if (target) {
-                utils.smoothScrollTo(target);
-                if (App.state.isMenuOpen) Navigation.toggleMenu();
-                Navigation.updateActiveLink(href);
+        const h = e.target.getAttribute('href');
+        if (h?.startsWith('#')) {
+            const t = document.querySelector(h);
+            if (t) {
+                u.ss(t);
+                if (App.s.im) Nav.tm();
+                Nav.ual(h);
             }
         }
     },
-    updateActiveLink: activeHref => {
-        App.elements.navLinks.forEach(link => 
-            link.classList.toggle('active', link.getAttribute('href') === activeHref)
+    ual: ah => {
+        App.e.nl.forEach(l => 
+            l.classList.toggle('active', l.getAttribute('href') === ah)
         );
     },
-    updateNavbarOnScroll: () => App.elements.navbar.classList.toggle('scrolled', window.pageYOffset > 50)
+    unos: () => App.e.n.classList.toggle('scrolled', window.pageYOffset > 50)
 };
 
-// ===== TESTIMONIALS =====
-const Testimonials = {
-    init: () => {
-        if (App.elements.testimonialItems.length > 0) {
-            setInterval(() => !document.hidden && Testimonials.nextTestimonial(), App.config.testimonialInterval);
+// Test
+const Test = {
+    i: () => {
+        if (App.e.ti.length > 0) {
+            setInterval(() => !document.hidden && Test.nt(), 5000);
         }
     },
-    showTestimonial: index => {
-        App.elements.testimonialItems.forEach((item, i) => item.classList.toggle('active', i === index));
-        App.elements.testimonialDots.forEach((dot, i) => dot.classList.toggle('active', i === index));
-        App.state.currentTestimonial = index;
+    st: i => {
+        App.e.ti.forEach((it, idx) => it.classList.toggle('active', idx === i));
+        App.e.td.forEach((d, idx) => d.classList.toggle('active', idx === i));
+        App.s.ct = i;
     },
-    nextTestimonial: () => {
-        const nextIndex = (App.state.currentTestimonial + 1) % App.elements.testimonialItems.length;
-        Testimonials.showTestimonial(nextIndex);
+    nt: () => {
+        const ni = (App.s.ct + 1) % App.e.ti.length;
+        Test.st(ni);
     },
-    handleDotClick: e => {
-        const index = parseInt(e.target.dataset.slide);
-        if (!isNaN(index)) Testimonials.showTestimonial(index);
+    hdc: e => {
+        const i = parseInt(e.target.dataset.slide);
+        if (!isNaN(i)) Test.st(i);
     }
 };
 
-// ===== FORMULÁRIO =====
+// Form
 const Form = {
-    handleSubmit: async e => {
+    hs: async e => {
         e.preventDefault();
-        if (App.state.isLoading) return;
+        if (App.s.il) return;
         
-        const data = Object.fromEntries(new FormData(e.target));
-        if (Form.validateForm(data)) await Form.submitForm(data);
+        const d = Object.fromEntries(new FormData(e.target));
+        if (Form.vfo(d)) await Form.sf(d);
     },
-    validateForm: data => {
-        const errors = {};
-        if (!data.name || data.name.trim().length < 2) errors.name = 'Nome deve ter pelo menos 2 caracteres';
-        if (!data.email || !utils.isValidEmail(data.email)) errors.email = 'Email inválido';
-        if (!data.phone || !utils.isValidPhone(data.phone)) errors.phone = 'Telefone inválido';
-        if (!data.service) errors.service = 'Selecione um serviço';
+    vfo: d => {
+        const er = {};
+        if (!d.name || d.name.trim().length < 2) er.name = 'Nome deve ter pelo menos 2 caracteres';
+        if (!d.email || !u.ve2(d.email)) er.email = 'Email inválido';
+        if (!d.phone || !u.vp(d.phone)) er.phone = 'Telefone inválido';
+        if (!d.service) er.service = 'Selecione um serviço';
         
-        Form.showErrors(errors);
-        return Object.keys(errors).length === 0;
+        Form.ser(er);
+        return Object.keys(er).length === 0;
     },
-    validateField: e => {
+    vf: e => {
         const { name, value } = e.target;
-        let error = '';
+        let er = '';
         switch (name) {
-            case 'name': if (value.trim().length < 2) error = 'Nome deve ter pelo menos 2 caracteres'; break;
-            case 'email': if (value && !utils.isValidEmail(value)) error = 'Email inválido'; break;
-            case 'phone': if (value && !utils.isValidPhone(value)) error = 'Telefone inválido'; break;
+            case 'name': if (value.trim().length < 2) er = 'Nome deve ter pelo menos 2 caracteres'; break;
+            case 'email': if (value && !u.ve2(value)) er = 'Email inválido'; break;
+            case 'phone': if (value && !u.vp(value)) er = 'Telefone inválido'; break;
         }
-        Form.showFieldError(e.target, error);
+        Form.sfe(e.target, er);
     },
-    clearErrors: e => Form.showFieldError(e.target, ''),
-    showFieldError: (field, error) => {
-        const group = field.closest('.form-group');
-        let errorElement = group.querySelector('.field-error');
+    ce: e => Form.sfe(e.target, ''),
+    sfe: (f, er) => {
+        const g = f.closest('.form-group');
+        let ee = g.querySelector('.field-error');
         
-        if (error) {
-            if (!errorElement) {
-                errorElement = document.createElement('span');
-                errorElement.className = 'field-error';
-                group.appendChild(errorElement);
+        if (er) {
+            if (!ee) {
+                ee = document.createElement('span');
+                ee.className = 'field-error';
+                g.appendChild(ee);
             }
-            errorElement.textContent = error;
-            field.classList.add('error');
+            ee.textContent = er;
+            f.classList.add('error');
         } else {
-            errorElement?.remove();
-            field.classList.remove('error');
+            ee?.remove();
+            f.classList.remove('error');
         }
     },
-    showErrors: errors => {
-        Object.entries(errors).forEach(([fieldName, error]) => {
-            const field = document.querySelector(`[name="${fieldName}"]`);
-            if (field) Form.showFieldError(field, error);
+    ser: er => {
+        Object.entries(er).forEach(([fn, er]) => {
+            const f = document.querySelector(`[name="${fn}"]`);
+            if (f) Form.sfe(f, er);
         });
     },
-    submitForm: async data => {
-        App.state.isLoading = true;
-        const btn = App.elements.contactForm.querySelector('button[type="submit"]');
-        const originalText = btn.textContent;
+    sf: async d => {
+        App.s.il = true;
+        const btn = App.e.cf.querySelector('button[type="submit"]');
+        const ot = btn.textContent;
         
-        btn.textContent = 'Enviando...';
+        btn.textContent = 'Gerando WhatsApp...';
         btn.disabled = true;
         
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            Form.showAlert('Mensagem enviada com sucesso! Retornaremos em breve.', 'success');
-            App.elements.contactForm.reset();
+            // Criar mensagem do WhatsApp
+            const sv = {
+                'drenagem': 'Drenagem Linfática',
+                'ultrassom': 'Ultrassom Terapêutico',
+                'radiofrequencia': 'Radiofrequência',
+                'mobilizacao': 'Mobilização Cicatricial',
+                'exercicios': 'Exercícios Terapêuticos',
+                'orientacoes': 'Orientações Pós-Operatórias'
+            };
+            
+            const msg = `Olá! Gostaria de solicitar um orçamento:
+
+📋 *DADOS:*
+• Nome: ${d.name}
+• Email: ${d.email}
+• Telefone: ${d.phone}
+• Serviço: ${sv[d.service] || d.service}
+
+💬 *Mensagem:*
+${d.message || 'Não informado'}
+
+Aguardo o contato!`;
+            
+            const wa = `https://wa.me/5511960354728?text=${encodeURIComponent(msg)}`;
+            
+            await new Promise(r => setTimeout(r, 1000));
+            
+            window.open(wa, '_blank');
+            Form.sal('Redirecionando para WhatsApp! Complete seu orçamento por lá.', 'success');
+            App.e.cf.reset();
         } catch {
-            Form.showAlert('Erro ao enviar mensagem. Tente novamente.', 'error');
+            Form.sal('Erro ao gerar WhatsApp. Tente novamente.', 'error');
         } finally {
-            App.state.isLoading = false;
-            btn.textContent = originalText;
+            App.s.il = false;
+            btn.textContent = ot;
             btn.disabled = false;
         }
     },
-    showAlert: (message, type) => {
-        const alert = document.createElement('div');
-        alert.className = `form-alert form-alert--${type}`;
-        alert.textContent = message;
-        App.elements.contactForm.prepend(alert);
-        setTimeout(() => alert.remove(), 5000);
+    sal: (msg, type) => {
+        const al = document.createElement('div');
+        al.className = `form-alert form-alert--${type}`;
+        al.textContent = msg;
+        App.e.cf.prepend(al);
+        setTimeout(() => al.remove(), 5000);
     }
 };
 
-// ===== EFEITOS DE SCROLL =====
-const ScrollEffects = {
-    handleScroll: () => {
-        Navigation.updateNavbarOnScroll();
-        ScrollEffects.animateOnScroll();
-        ScrollEffects.updateActiveSection();
+// Scroll
+const Scroll = {
+    hs: () => {
+        Nav.unos();
+        Scroll.aos();
+        Scroll.uas();
     },
-    animateOnScroll: () => {
-        App.elements.fadeElements.forEach(element => {
-            if (utils.isElementVisible(element)) {
-                element.classList.add('fade-in', 'visible');
+    aos: () => {
+        App.e.fe.forEach(el => {
+            if (u.ve(el)) {
+                el.classList.add('fade-in', 'visible');
             }
         });
     },
-    updateActiveSection: () => {
-        const sections = document.querySelectorAll('section[id]');
-        let activeSection = '';
-        sections.forEach(section => {
-            const rect = section.getBoundingClientRect();
-            if (rect.top <= 100 && rect.bottom >= 100) activeSection = `#${section.id}`;
+    uas: () => {
+        const ss = document.querySelectorAll('section[id]');
+        let as = '';
+        ss.forEach(s => {
+            const r = s.getBoundingClientRect();
+            if (r.top <= 100 && r.bottom >= 100) as = `#${s.id}`;
         });
-        if (activeSection) Navigation.updateActiveLink(activeSection);
+        if (as) Nav.ual(as);
     }
 };
 
-// ===== LAYOUT =====
+// Layout
 const Layout = {
-    handleResize: () => {
-        if (window.innerWidth > 768 && App.state.isMenuOpen) Navigation.toggleMenu();
-        Layout.updateViewportHeight();
+    hr: () => {
+        if (window.innerWidth > 768 && App.s.im) Nav.tm();
+        Layout.uvh();
     },
-    updateViewportHeight: () => {
+    uvh: () => {
         document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
     }
 };
 
-// ===== RECURSOS =====
+// Features
 const Features = {
-    addInputMask: () => {
-        document.querySelectorAll('input[type="tel"]').forEach(input => {
-            input.addEventListener('input', e => e.target.value = utils.formatPhone(e.target.value));
+    aim: () => {
+        document.querySelectorAll('input[type="tel"]').forEach(i => {
+            i.addEventListener('input', e => e.target.value = u.fp(e.target.value));
         });
     },
-    enhanceAccessibility: () => {
-        const { navToggle } = App.elements;
-        if (navToggle) {
-            navToggle.setAttribute('aria-label', 'Alternar menu de navegação');
-            navToggle.setAttribute('aria-expanded', 'false');
+    ea: () => {
+        const { nt } = App.e;
+        if (nt) {
+            nt.setAttribute('aria-label', 'Alternar menu');
+            nt.setAttribute('aria-expanded', 'false');
         }
-    },
-    addDynamicStyles: () => {
-        const styles = `
-            .field-error { display: block; font-size: 0.6rem; color: #e74c3c; margin-top: 4px; }
-            .form-group input.error, .form-group select.error, .form-group textarea.error { 
-                border-color: #e74c3c; background-color: rgba(231, 76, 60, 0.1); 
-            }
-            .form-alert { padding: var(--spacing-sm); margin-bottom: var(--spacing-sm); 
-                border-radius: var(--radius-sm); font-size: 0.7rem; }
-            .form-alert--success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-            .form-alert--error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-            .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-            *:focus-visible { outline: 3px solid var(--secondary-color) !important; outline-offset: 2px !important; }
-        `;
-        
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = styles;
-        document.head.appendChild(styleSheet);
     }
 };
 
-// ===== INICIALIZAÇÃO =====
-const AppInit = {
-    init: () => {
+// Init
+const Init = {
+    i: () => {
         document.readyState === 'loading' 
-            ? document.addEventListener('DOMContentLoaded', AppInit.start)
-            : AppInit.start();
+            ? document.addEventListener('DOMContentLoaded', Init.s)
+            : Init.s();
     },
-    start: () => {
+    s: () => {
         try {
-            DOM.cache();
-            DOM.bindEvents();
-            Testimonials.init();
-            Layout.updateViewportHeight();
-            ScrollEffects.handleScroll();
-            Features.addInputMask();
-            Features.enhanceAccessibility();
-            Features.addDynamicStyles();
+            DOM.c();
+            DOM.b();
+            Test.i();
+            Layout.uvh();
+            Scroll.hs();
+            Features.aim();
+            Features.ea();
             document.body.classList.remove('loading');
-            console.log('Site inicializado com sucesso!');
-        } catch (error) {
-            console.error('Erro ao inicializar:', error);
+        } catch (er) {
+            console.error('Erro:', er);
         }
     }
 };
 
-// ===== INICIALIZAÇÃO =====
-AppInit.init();
+Init.i();
