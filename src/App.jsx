@@ -546,7 +546,7 @@ Aguardo o contato!`;
             <div className="relative order-2 lg:order-1">
               <div className="relative rounded-[3rem] overflow-hidden shadow-2xl">
                 <img 
-                  src="/public/images/foto-sobre.png" 
+                  src="/images/foto-sobre.png" 
                   alt="Débora Santiago" 
                   className="w-full h-[600px] object-cover"
                 />
@@ -778,7 +778,7 @@ Aguardo o contato!`;
                 url: "https://www.instagram.com/p/DPHPhyYgBxn/",
                 media: "/videos/linfatica.mp4",
                 type: "video",
-                poster: "/images/outubro-rosa.jpg"
+                poster: "/images/linfatica.jpeg"
               },
               {
                 url: "https://www.instagram.com/p/DPoP0VrAOde/",
