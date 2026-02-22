@@ -5,21 +5,21 @@ import { Routes, Route } from 'react-router-dom';
 import FisioterapiaDeboraSantiago from './components/LandingPage';
 
 // Blog
-import BlogPage from './pages/Blog/BlogPage';
-import BlogPostPage from './pages/Blog/BlogPostPage';
+import BlogPage from './pages/blog/BlogPage';
+import BlogPostPage from './pages/blog/BlogPostPage';
 
 // Admin
-import LoginPage from './pages/Admin/LoginPage';
-import DashboardPage from './pages/Admin/DashboardPage';
-import HeroAdmin from './pages/Admin/HeroAdmin';
-import AboutAdmin from './pages/Admin/AboutAdmin';
-import ServicosAdmin from './pages/Admin/ServicosAdmin';
-import DepoimentosAdmin from './pages/Admin/DepoimentosAdmin';
-import BlogAdmin from './pages/Admin/BlogAdmin';
-import FaqAdmin from './pages/Admin/FaqAdmin';
-import InstagramAdmin from './pages/Admin/InstagramAdmin';
-import ContatoAdmin from './pages/Admin/ContatoAdmin';
-import MidiaAdmin from './pages/Admin/MidiaAdmin';
+import LoginPage from './pages/admin/LoginPage';
+import DashboardPage from './pages/admin/DashboardPage';
+import HeroAdmin from './pages/admin/HeroAdmin';
+import AboutAdmin from './pages/admin/AboutAdmin';
+import ServicosAdmin from './pages/admin/ServicosAdmin';
+import DepoimentosAdmin from './pages/admin/DepoimentosAdmin';
+import BlogAdmin from './pages/admin/BlogAdmin';
+import FaqAdmin from './pages/admin/FaqAdmin';
+import InstagramAdmin from './pages/admin/InstagramAdmin';
+import ContatoAdmin from './pages/admin/ContatoAdmin';
+import MidiaAdmin from './pages/admin/MidiaAdmin';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
