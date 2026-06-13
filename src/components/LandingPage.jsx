@@ -180,8 +180,8 @@ const LandingPage = () => {
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-white/98 backdrop-blur-xl shadow-sm border-b border-[#F5F1EB]' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between h-20">
           <button onClick={() => scrollTo('home')} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4AF7A] to-[#8B7355] flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-lg">
+              <img src="/logo.png" alt="DS" className="w-full h-full object-cover" />
             </div>
             <div className="leading-tight">
               <p className="font-bold text-sm tracking-widest uppercase text-[#5D4E37]">{nomeClinica}</p>
@@ -671,8 +671,8 @@ const LandingPage = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#8B7355]/50">
             <div className="sm:col-span-2">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#D4AF7A] to-[#8B7355] flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 shadow-xl">
+                  <img src="/logo.png" alt="DS" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <p className="font-extrabold text-[#D4AF7A] tracking-widest uppercase text-sm">{nomeClinica}</p>

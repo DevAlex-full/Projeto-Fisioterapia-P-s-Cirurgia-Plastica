@@ -324,7 +324,7 @@ const BlogAdmin = () => {
                                     type="file"
                                     accept="image/*"
                                     className="hidden"
-                                    ref={el => { if (el) fileRefs.current[block.id] = el; }}
+                                    ref={el => { fileRefs.current[block.id] = el; }}
                                     onChange={e => {
                                       const file = e.target.files?.[0];
                                       if (file) uploadImage(block.id, file);
