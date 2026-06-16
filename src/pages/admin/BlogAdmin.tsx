@@ -16,8 +16,9 @@ interface Block {
   type:     BlockType;
   content:  string; // texto ou URL da imagem
   caption:  string; // legenda (só imagem)
-  uploading: boolean;
-  progress:  number;
+  uploading:   boolean;
+  progress:    number;
+  uploadError: string;
 }
 
 interface BlogPost {
@@ -31,7 +32,7 @@ interface BlogPost {
 const uid = () => `${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
 
 const makeBlock = (type: BlockType = 'text'): Block => ({
-  id: uid(), type, content: '', caption: '', uploading: false, progress: 0,
+  id: uid(), type, content: '', caption: '', uploading: false, progress: 0, uploadError: '',
 });
 
 const blocksToHtml = (blocks: Block[]): string =>
@@ -63,10 +64,10 @@ const htmlToBlocks = (html: string): Block[] => {
       const src     = part.match(/src="([^"]+)"/i)?.[1] || '';
       const alt     = part.match(/alt="([^"]+)"/i)?.[1] || '';
       const caption = part.match(/<p[^>]*>(.*?)<\/p>/i)?.[1] || alt;
-      if (src) blocks.push({ id: uid(), type: 'image', content: src, caption, uploading: false, progress: 0 });
+      if (src) blocks.push({ id: uid(), type: 'image', content: src, caption, uploading: false, progress: 0, uploadError: '' });
     } else {
       const text = part.replace(/<\/p>\s*<p>/gi, '\n').replace(/<[^>]+>/g, '').trim();
-      if (text) blocks.push({ id: uid(), type: 'text', content: text, caption: '', uploading: false, progress: 0 });
+      if (text) blocks.push({ id: uid(), type: 'text', content: text, caption: '', uploading: false, progress: 0, uploadError: '' });
     }
   }
   return blocks.length ? blocks : [makeBlock('text')];
@@ -165,7 +166,7 @@ const BlogAdmin = () => {
       updateBlock(id, { content: data.url, uploading: false, progress: 100 });
     } catch (e: any) {
       const err = e?.response?.data?.error || 'Erro no upload';
-      updateBlock(id, { uploading: false, progress: 0 });
+      updateBlock(id, { uploading: false, progress: 0, uploadError: err });
       setMsg({ type: 'error', text: `❌ ${err}` });
     }
   };
@@ -200,12 +201,12 @@ const BlogAdmin = () => {
   return (
     <AdminLayout title="Blog">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <p className="text-[#999] text-sm">
           {posts.filter(p => p.publicado).length} publicado(s) / {posts.length} total
         </p>
         <button onClick={openNew}
-          className="flex items-center gap-2 bg-gradient-to-r from-[#D4AF7A] to-[#8B7355] text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition">
+          className="flex-shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF7A] to-[#8B7355] text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition w-full sm:w-auto">
           <Plus className="w-5 h-5" /> Novo Post
         </button>
       </div>
@@ -331,6 +332,16 @@ const BlogAdmin = () => {
                                       e.target.value = '';
                                     }}
                                   />
+                                  {block.uploadError && (
+                                    <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-xl mb-2 flex items-center gap-1">
+                                      ⚠️ {block.uploadError} — 
+                                      <button
+                                        type="button"
+                                        onClick={() => updateBlock(block.id, { uploadError: '' })}
+                                        className="underline"
+                                      >tentar novamente</button>
+                                    </p>
+                                  )}
                                   {block.uploading ? (
                                     <div className="h-32 flex flex-col items-center justify-center gap-3">
                                       <Loader className="w-8 h-8 text-[#D4AF7A] animate-spin" />
@@ -358,23 +369,23 @@ const BlogAdmin = () => {
                               ) : (
                                 <div>
                                   {/* Preview da imagem */}
-                                  <div className="relative group/img">
+                                  <div className="relative">
                                     <img
                                       src={block.content} alt={block.caption}
                                       className="w-full rounded-xl object-cover max-h-64"
                                     />
-                                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/30 rounded-xl transition flex items-center justify-center gap-3 opacity-0 group-hover/img:opacity-100">
-                                      <button
-                                        onClick={() => { updateBlock(block.id, { content: '', progress: 0 }); }}
-                                        className="bg-white text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold shadow"
-                                      >
-                                        Trocar imagem
-                                      </button>
-                                    </div>
                                     <div className="absolute top-2 right-2">
-                                      <CheckCircle className="w-6 h-6 text-green-500 bg-white rounded-full" />
+                                      <CheckCircle className="w-6 h-6 text-green-500 bg-white rounded-full shadow" />
                                     </div>
                                   </div>
+                                  {/* Botão trocar visível em mobile e desktop */}
+                                  <button
+                                    type="button"
+                                    onClick={() => updateBlock(block.id, { content: '', progress: 0, uploadError: '' })}
+                                    className="w-full mt-2 py-2 border-2 border-dashed border-red-200 rounded-xl text-xs text-red-500 font-semibold hover:bg-red-50 transition flex items-center justify-center gap-1"
+                                  >
+                                    🔄 Trocar imagem
+                                  </button>
                                   {/* Legenda */}
                                   <input
                                     type="text"
