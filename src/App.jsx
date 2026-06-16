@@ -1,6 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
+import SEO from './components/SEO';
+
 // Landing Page
 import FisioterapiaDeboraSantiago from './components/LandingPage';
 
@@ -28,16 +30,36 @@ import ProtectedRoute     from './components/ProtectedRoute';
 function App() {
   return (
     <Routes>
-      {/* ══════════════════════════════════════ */}
-      {/* SITE PÚBLICO                           */}
-      {/* ══════════════════════════════════════ */}
-      <Route path="/"           element={<FisioterapiaDeboraSantiago />} />
-      <Route path="/blog"       element={<BlogPage />} />
+      <Route
+        path="/"
+        element={
+          <>
+            <SEO
+              title="Débora Santiago | Fisioterapia Pós-Operatória e Pós-Cirurgia Plástica"
+              description="Fisioterapia especializada em pós-operatório de cirurgia plástica, drenagem linfática, recuperação pós-cirúrgica e reabilitação com atendimento em clínica, parceiros e domicílio."
+              url="https://www.deborasantiago.com/"
+            />
+            <FisioterapiaDeboraSantiago />
+          </>
+        }
+      />
+
+      <Route
+        path="/blog"
+        element={
+          <>
+            <SEO
+              title="Blog | Débora Santiago Fisioterapia"
+              description="Conteúdos sobre fisioterapia pós-operatória, cirurgia plástica, drenagem linfática, recuperação pós-cirúrgica e cuidados com a saúde."
+              url="https://www.deborasantiago.com/blog"
+            />
+            <BlogPage />
+          </>
+        }
+      />
+
       <Route path="/blog/:slug" element={<BlogPostPage />} />
 
-      {/* ══════════════════════════════════════ */}
-      {/* ADMIN                                  */}
-      {/* ══════════════════════════════════════ */}
       <Route path="/admin" element={<LoginPage />} />
 
       <Route path="/admin/dashboard" element={

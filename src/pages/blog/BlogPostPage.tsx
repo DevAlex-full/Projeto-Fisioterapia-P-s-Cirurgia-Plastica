@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { ArrowLeft, Clock, User, Calendar, Loader, Heart } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 interface Post {
   id: string; titulo: string; slug: string; conteudo: string; excerpt: string;
@@ -26,10 +27,10 @@ function sanitizeHtml(html: string): string {
 }
 
 const BlogPostPage = () => {
-  const { slug }   = useParams<{ slug: string }>();
-  const navigate   = useNavigate();
-  const [post,     setPost]     = useState<Post | null>(null);
-  const [loading,  setLoading]  = useState(true);
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
@@ -38,48 +39,6 @@ const BlogPostPage = () => {
       .then(({ data }) => { setPost(data); setLoading(false); })
       .catch(() => { setNotFound(true); setLoading(false); });
   }, [slug]);
-
-  // SEO dinâmico por post
-  useEffect(() => {
-    if (!post) return;
-    const prev = {
-      title:    document.title,
-      desc:     document.querySelector('meta[name="description"]')?.getAttribute('content') || '',
-      ogTitle:  document.querySelector('meta[property="og:title"]')?.getAttribute('content') || '',
-      ogDesc:   document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '',
-      ogImage:  document.querySelector('meta[property="og:image"]')?.getAttribute('content') || '',
-    };
-
-    // Atualiza título
-    document.title = `${post.titulo} | Débora Santiago`;
-
-    // Helper para upsert de meta tags
-    const setMeta = (sel: string, attr: string, val: string) => {
-      let el = document.querySelector(sel) as HTMLMetaElement | null;
-      if (!el) { el = document.createElement('meta'); document.head.appendChild(el); }
-      el.setAttribute(attr.includes(':') ? 'property' : 'name', attr);
-      el.setAttribute('content', val);
-    };
-
-    setMeta('meta[name="description"]',        'name',              post.excerpt);
-    setMeta('meta[property="og:title"]',       'og:title',          post.titulo);
-    setMeta('meta[property="og:description"]', 'og:description',    post.excerpt);
-    setMeta('meta[property="og:type"]',        'og:type',           'article');
-    if (post.imagemUrl)
-      setMeta('meta[property="og:image"]',     'og:image',          post.imagemUrl);
-
-    return () => {
-      document.title = prev.title;
-      const setMetaBack = (sel: string, attr: string, val: string) => {
-        const el = document.querySelector(sel);
-        if (el) el.setAttribute('content', val);
-      };
-      setMetaBack('meta[name="description"]',        'content', prev.desc);
-      setMetaBack('meta[property="og:title"]',       'content', prev.ogTitle);
-      setMetaBack('meta[property="og:description"]', 'content', prev.ogDesc);
-      setMetaBack('meta[property="og:image"]',       'content', prev.ogImage);
-    };
-  }, [post]);
 
   if (loading) return (
     <div className="min-h-screen bg-[#F9F5EE] flex items-center justify-center">
@@ -101,6 +60,14 @@ const BlogPostPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F9F5EE]">
+
+      <SEO
+        title={`${post.titulo} | Débora Santiago`}
+        description={post.excerpt || 'Conteúdo sobre fisioterapia pós-operatória, recuperação pós-cirúrgica e cuidados especializados.'}
+        image={post.imagemUrl || 'https://www.deborasantiago.com/logo.png'}
+        url={`https://www.deborasantiago.com/blog/${post.slug}`}
+        type="article"
+      />
 
       {post.imagemUrl ? (
         <div className="relative h-64 sm:h-80 lg:h-96 overflow-hidden">
@@ -142,7 +109,7 @@ const BlogPostPage = () => {
           </div>
           <div className="flex items-center gap-2 text-sm text-[#666]">
             <Calendar className="w-4 h-4 text-[#D4AF7A]" />
-            <span>{new Date(post.createdAt).toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</span>
+            <span>{new Date(post.createdAt).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-[#666]">
             <Clock className="w-4 h-4 text-[#D4AF7A]" />
@@ -215,6 +182,8 @@ const BlogPostPage = () => {
         </div>
       </div>
     </div>
+
+
   );
 };
 
