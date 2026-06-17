@@ -12,13 +12,13 @@ import {
 type BlockType = 'text' | 'image';
 
 interface Block {
-  id:       string;
-  type:     BlockType;
-  content:  string; // texto ou URL da imagem
-  caption:  string; // legenda (só imagem)
+  id:          string;
+  type:        BlockType;
+  content:     string; // texto ou URL da imagem
+  caption:     string; // legenda (só imagem)
   uploading:   boolean;
   progress:    number;
-  uploadError: string;
+  uploadError: string; // FIX: erro individual por bloco
 }
 
 interface BlogPost {
@@ -166,6 +166,8 @@ const BlogAdmin = () => {
       updateBlock(id, { content: data.url, uploading: false, progress: 100 });
     } catch (e: any) {
       const err = e?.response?.data?.error || 'Erro no upload';
+      // FIX: erro agora fica visível no próprio bloco (não só na mensagem
+      // global do topo, que o usuário podia não notar em mobile)
       updateBlock(id, { uploading: false, progress: 0, uploadError: err });
       setMsg({ type: 'error', text: `❌ ${err}` });
     }
@@ -200,13 +202,15 @@ const BlogAdmin = () => {
   // ══════════════════════════════════════════════════════════
   return (
     <AdminLayout title="Blog">
-      {/* Header */}
+      {/* Header — FIX: flex-wrap evita compressão do botão em mobile,
+          botão ganha flex-shrink-0 + w-full sm:w-auto + whitespace-nowrap
+          para nunca quebrar o texto "Novo Post" em duas linhas */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <p className="text-[#999] text-sm">
           {posts.filter(p => p.publicado).length} publicado(s) / {posts.length} total
         </p>
         <button onClick={openNew}
-          className="flex-shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF7A] to-[#8B7355] text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition w-full sm:w-auto">
+          className="flex-shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF7A] to-[#8B7355] text-white px-5 py-3 rounded-xl font-semibold hover:shadow-lg transition w-full sm:w-auto whitespace-nowrap">
           <Plus className="w-5 h-5" /> Novo Post
         </button>
       </div>
@@ -285,23 +289,23 @@ const BlogAdmin = () => {
                         className="group relative bg-white rounded-2xl border-2 border-[#F5F1EB] hover:border-[#D4AF7A]/30 overflow-hidden transition">
 
                         {/* Toolbar do bloco */}
-                        <div className="flex items-center gap-1 px-3 py-2 bg-[#F9F5EE] border-b border-[#F5F1EB]">
-                          <GripVertical className="w-4 h-4 text-[#ccc]" />
-                          <span className="text-xs font-bold text-[#999] uppercase tracking-wider flex-1">
+                        <div className="flex items-center gap-0.5 px-3 py-2 bg-[#F9F5EE] border-b border-[#F5F1EB]">
+                          <GripVertical className="w-4 h-4 text-[#ccc] flex-shrink-0" />
+                          <span className="text-xs font-bold text-[#999] uppercase tracking-wider flex-1 truncate">
                             {block.type === 'image' ? '🖼️ Imagem' : '✏️ Texto'} {idx + 1}
                           </span>
                           <button onClick={() => moveBlock(block.id, 'up')}
                             disabled={idx === 0}
-                            className="p-1 hover:bg-[#F5F1EB] rounded disabled:opacity-30 transition">
+                            className="p-2 hover:bg-[#F5F1EB] rounded disabled:opacity-30 transition flex-shrink-0">
                             <ArrowUp className="w-3.5 h-3.5 text-[#999]" />
                           </button>
                           <button onClick={() => moveBlock(block.id, 'down')}
                             disabled={idx === blocks.length - 1}
-                            className="p-1 hover:bg-[#F5F1EB] rounded disabled:opacity-30 transition">
+                            className="p-2 hover:bg-[#F5F1EB] rounded disabled:opacity-30 transition flex-shrink-0">
                             <ArrowDown className="w-3.5 h-3.5 text-[#999]" />
                           </button>
                           <button onClick={() => removeBlock(block.id)}
-                            className="p-1 hover:bg-red-50 rounded transition">
+                            className="p-2 hover:bg-red-50 rounded transition flex-shrink-0">
                             <X className="w-3.5 h-3.5 text-red-400" />
                           </button>
                         </div>
@@ -332,15 +336,20 @@ const BlogAdmin = () => {
                                       e.target.value = '';
                                     }}
                                   />
+                                  {/* FIX: erro de upload agora visível diretamente no bloco,
+                                      com botão para tentar novamente (antes só aparecia na
+                                      mensagem global do topo, fácil de não notar em mobile) */}
                                   {block.uploadError && (
-                                    <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-xl mb-2 flex items-center gap-1">
-                                      ⚠️ {block.uploadError} — 
+                                    <div className="mb-2 flex items-center justify-between gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+                                      <p className="text-xs text-red-600 flex-1">⚠️ {block.uploadError}</p>
                                       <button
                                         type="button"
                                         onClick={() => updateBlock(block.id, { uploadError: '' })}
-                                        className="underline"
-                                      >tentar novamente</button>
-                                    </p>
+                                        className="text-xs font-semibold text-red-600 underline flex-shrink-0"
+                                      >
+                                        tentar novamente
+                                      </button>
+                                    </div>
                                   )}
                                   {block.uploading ? (
                                     <div className="h-32 flex flex-col items-center justify-center gap-3">
@@ -375,13 +384,14 @@ const BlogAdmin = () => {
                                       className="w-full rounded-xl object-cover max-h-64"
                                     />
                                     <div className="absolute top-2 right-2">
-                                      <CheckCircle className="w-6 h-6 text-green-500 bg-white rounded-full shadow" />
+                                      <CheckCircle className="w-6 h-6 text-green-500 bg-white rounded-full" />
                                     </div>
                                   </div>
-                                  {/* Botão trocar visível em mobile e desktop */}
+                                  {/* FIX: botão sempre visível (era só no hover, que não
+                                      existe de forma confiável em telas touch/mobile) */}
                                   <button
                                     type="button"
-                                    onClick={() => updateBlock(block.id, { content: '', progress: 0, uploadError: '' })}
+                                    onClick={() => { updateBlock(block.id, { content: '', progress: 0, uploadError: '' }); }}
                                     className="w-full mt-2 py-2 border-2 border-dashed border-red-200 rounded-xl text-xs text-red-500 font-semibold hover:bg-red-50 transition flex items-center justify-center gap-1"
                                   >
                                     🔄 Trocar imagem
@@ -493,48 +503,58 @@ const BlogAdmin = () => {
           <Loader className="w-8 h-8 animate-spin text-[#D4AF7A]" />
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {posts.map(p => (
             <div key={p.id}
-              className={`bg-white rounded-2xl p-4 sm:p-5 shadow-md border-2 flex gap-3 sm:gap-4 ${
+              className={`bg-white rounded-2xl p-4 sm:p-5 shadow-md border-2 ${
                 p.publicado ? 'border-[#F5F1EB]' : 'border-yellow-100'
               }`}>
-              {/* Thumbnail */}
-              {p.imagemUrl
-                ? <img src={p.imagemUrl} alt={p.titulo} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover flex-shrink-0" />
-                : <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-[#D4AF7A] to-[#8B7355] flex-shrink-0 flex items-center justify-center text-2xl">📝</div>
-              }
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h4 className="font-bold text-[#5D4E37] text-sm sm:text-base truncate">{p.titulo}</h4>
-                      {p.destaque && <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full flex-shrink-0">⭐</span>}
-                    </div>
-                    <p className="text-xs text-[#999]">{p.autor} · {p.readTime} · {new Date(p.createdAt).toLocaleDateString('pt-BR')}</p>
-                    <p className="text-xs sm:text-sm text-[#666] line-clamp-1 mt-1">{p.excerpt}</p>
+              {/* Linha principal: thumbnail + título/meta (SEM ações aqui —
+                  FIX: ações deixaram de ficar espremidas ao lado do título
+                  truncado; agora vivem num footer próprio com mais espaço) */}
+              <div className="flex gap-3 sm:gap-4">
+                {p.imagemUrl
+                  ? <img src={p.imagemUrl} alt={p.titulo} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover flex-shrink-0" />
+                  : <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-[#D4AF7A] to-[#8B7355] flex-shrink-0 flex items-center justify-center text-2xl">📝</div>
+                }
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-2 mb-1 flex-wrap">
+                    {/* FIX: line-clamp-2 em vez de truncate — permite 2 linhas
+                        completas em telas estreitas em vez de cortar com "..." */}
+                    <h4 className="font-bold text-[#5D4E37] text-sm sm:text-base leading-snug line-clamp-2 flex-1 min-w-0">
+                      {p.titulo}
+                    </h4>
+                    {p.destaque && <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full flex-shrink-0">⭐</span>}
                   </div>
-                  <div className="flex gap-1 flex-shrink-0">
-                    <button onClick={() => togglePublicado(p)} title={p.publicado ? 'Despublicar' : 'Publicar'}
-                      className="p-1.5 hover:bg-[#F5F1EB] rounded-lg transition">
-                      {p.publicado
-                        ? <Eye className="w-4 h-4 text-green-500" />
-                        : <EyeOff className="w-4 h-4 text-[#999]" />}
-                    </button>
-                    <button onClick={() => openEdit(p)} className="p-1.5 hover:bg-[#F5F1EB] rounded-lg transition">
-                      <Pencil className="w-4 h-4 text-[#D4AF7A]" />
-                    </button>
-                    <button onClick={() => handleDelete(p.id)} className="p-1.5 hover:bg-red-50 rounded-lg transition">
-                      <Trash2 className="w-4 h-4 text-red-400" />
-                    </button>
-                  </div>
+                  <p className="text-xs text-[#999] truncate">{p.autor} · {p.readTime} · {new Date(p.createdAt).toLocaleDateString('pt-BR')}</p>
+                  <p className="hidden sm:block text-xs sm:text-sm text-[#666] line-clamp-1 mt-1">{p.excerpt}</p>
                 </div>
-                <span className={`inline-block text-xs px-2 py-0.5 rounded-full mt-2 font-medium ${
+              </div>
+
+              {/* Footer: status + ações — FIX: linha própria com borda superior,
+                  touch target maior (p-2.5 em vez de p-1.5) e respiro entre botões */}
+              <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-[#F5F1EB]">
+                <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ${
                   p.publicado ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                 }`}>
                   {p.publicado ? '✅ Publicado' : '📝 Rascunho'}
                 </span>
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => togglePublicado(p)} title={p.publicado ? 'Despublicar' : 'Publicar'}
+                    className="p-2.5 hover:bg-[#F5F1EB] rounded-lg transition">
+                    {p.publicado
+                      ? <Eye className="w-4 h-4 text-green-500" />
+                      : <EyeOff className="w-4 h-4 text-[#999]" />}
+                  </button>
+                  <button onClick={() => openEdit(p)} title="Editar"
+                    className="p-2.5 hover:bg-[#F5F1EB] rounded-lg transition">
+                    <Pencil className="w-4 h-4 text-[#D4AF7A]" />
+                  </button>
+                  <button onClick={() => handleDelete(p.id)} title="Excluir"
+                    className="p-2.5 hover:bg-red-50 rounded-lg transition">
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

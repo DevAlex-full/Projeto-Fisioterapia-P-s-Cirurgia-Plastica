@@ -215,15 +215,15 @@ const LandingPage = () => {
       {/* HERO — split assimétrico */}
       <section id="home" className="relative min-h-screen grid lg:grid-cols-2 overflow-hidden">
         {/* Esquerda — texto */}
-        <div className="relative z-10 flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-20 pt-32 pb-16 lg:pt-0 bg-[#F9F5EE]">
+        <div className="relative z-10 flex flex-col justify-center px-5 sm:px-12 lg:px-16 xl:px-20 pt-28 sm:pt-32 pb-12 sm:pb-16 lg:pt-0 bg-[#F9F5EE]">
           <div className="inline-flex items-center gap-2 self-start mb-8 border border-[#D4AF7A]/50 text-[#8B7355] px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-widest">
             <Sparkles className="w-3 h-3 text-[#D4AF7A]" />
             {hero?.badge || DEFAULT_HERO.badge}
           </div>
-          <h1 className="text-6xl sm:text-7xl xl:text-8xl font-extrabold text-[#5D4E37] leading-[.9] mb-3 gold-bar">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-extrabold text-[#5D4E37] leading-[1] sm:leading-[.9] mb-2 sm:mb-3 gold-bar break-words">
             {hero?.titulo || DEFAULT_HERO.titulo}
           </h1>
-          <h1 className="text-6xl sm:text-7xl xl:text-8xl font-bold italic text-[#D4AF7A] leading-[.9] mb-8">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold italic text-[#D4AF7A] leading-[1] sm:leading-[.9] mb-6 sm:mb-8 break-words">
             {hero?.subtitulo || DEFAULT_HERO.subtitulo}
           </h1>
           <p className="text-base sm:text-lg text-[#666] leading-relaxed max-w-md mb-10">
@@ -257,10 +257,15 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-        {/* Direita — vídeo full-height */}
-        <div className="relative h-72 lg:h-auto overflow-hidden cursor-pointer group" onClick={() => setVideoModal(true)}>
+        {/* Direita — vídeo full-height
+            FIX: altura mobile aumentada (h-72/288px → 60vh com mínimo de 420px)
+            para reduzir o quanto o object-cover precisa cortar verticalmente,
+            e object-position ajustado para focar mais no topo do frame
+            (onde geralmente está o rosto), evitando cortá-lo. */}
+        <div className="relative h-[60vh] min-h-[420px] sm:h-[520px] lg:h-auto overflow-hidden cursor-pointer group" onClick={() => setVideoModal(true)}>
           <video src={hero?.videoUrl || DEFAULT_HERO.videoUrl} poster={hero?.posterUrl || DEFAULT_HERO.posterUrl}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            style={{ objectPosition: 'center 20%' }}
             muted loop playsInline autoPlay />
           <div className="absolute inset-0 bg-gradient-to-r from-[#F9F5EE] via-transparent to-transparent" />
           <div className="absolute inset-0 flex items-center justify-center">

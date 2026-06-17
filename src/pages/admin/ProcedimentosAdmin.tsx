@@ -88,8 +88,9 @@ const ProcedimentosAdmin = () => {
 
   return (
     <AdminLayout title="Procedimentos">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      {/* Header — FIX: flex-wrap evita compressão do botão em mobile,
+          e o botão ganha flex-shrink-0 + w-full no mobile para não quebrar texto */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <p className="text-[#999] text-sm">
             {ativos.length} ativo(s) · {inativos.length} inativo(s)
@@ -100,7 +101,7 @@ const ProcedimentosAdmin = () => {
         </div>
         <button
           onClick={openNew}
-          className="flex items-center gap-2 bg-gradient-to-r from-[#D4AF7A] to-[#8B7355] text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition"
+          className="flex-shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF7A] to-[#8B7355] text-white px-5 py-3 rounded-xl font-semibold hover:shadow-lg transition w-full sm:w-auto whitespace-nowrap"
         >
           <Plus className="w-5 h-5" /> Novo Procedimento
         </button>
@@ -117,53 +118,58 @@ const ProcedimentosAdmin = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal — FIX: full-screen no mobile (era modal pequeno centralizado fixo,
+          que em telas estreitas ficava com pouca margem e risco de overflow) */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-[#5D4E37]">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center overflow-y-auto">
+          <div className="bg-white w-full sm:rounded-3xl sm:max-w-md sm:my-auto min-h-screen sm:min-h-0">
+            <div className="sticky top-0 z-10 bg-white flex items-center justify-between px-5 py-4 border-b border-[#F5F1EB] sm:rounded-t-3xl">
+              <h3 className="text-lg font-bold text-[#5D4E37]">
                 {editing ? 'Editar' : 'Novo'} Procedimento
               </h3>
-              <button onClick={() => setShowForm(false)} className="p-2 hover:bg-[#F5F1EB] rounded-xl">
-                <X className="w-5 h-5" />
+              <button onClick={() => setShowForm(false)} className="p-2 hover:bg-[#F5F1EB] rounded-xl transition">
+                <X className="w-5 h-5 text-[#999]" />
               </button>
             </div>
 
-            <label className="block text-sm font-semibold text-[#5D4E37] mb-2">
-              Nome do Procedimento
-            </label>
-            <input
-              type="text"
-              value={nome}
-              onChange={e => setNome(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSave()}
-              placeholder="Ex: Abdominoplastia"
-              autoFocus
-              className="w-full px-4 py-3 bg-[#F5F1EB] border-2 border-transparent rounded-xl focus:outline-none focus:border-[#D4AF7A] text-[#333] mb-6"
-            />
+            <div className="p-5 sm:p-8">
+              <label className="block text-sm font-semibold text-[#5D4E37] mb-2">
+                Nome do Procedimento
+              </label>
+              <input
+                type="text"
+                value={nome}
+                onChange={e => setNome(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSave()}
+                placeholder="Ex: Abdominoplastia"
+                autoFocus
+                className="w-full px-4 py-3 bg-[#F5F1EB] border-2 border-transparent rounded-xl focus:outline-none focus:border-[#D4AF7A] text-[#333] mb-6"
+              />
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowForm(false)}
-                className="flex-1 py-3 border-2 border-[#F5F1EB] rounded-xl font-semibold text-[#999] hover:border-[#D4AF7A] transition"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 bg-gradient-to-r from-[#D4AF7A] to-[#8B7355] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-60"
-              >
-                {saving ? <Loader className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                Salvar
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="flex-1 py-3.5 border-2 border-[#F5F1EB] rounded-xl font-semibold text-[#999] hover:border-[#D4AF7A] transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex-1 bg-gradient-to-r from-[#D4AF7A] to-[#8B7355] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {saving ? <Loader className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                  Salvar
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Lista */}
+      {/* Lista — FIX: em mobile, ações vão para uma linha separada abaixo do
+          nome (em vez de ficarem espremidas ao lado), e o grip/número somem
+          em telas muito estreitas para dar mais espaço ao texto. */}
       {loading ? (
         <div className="flex justify-center py-20">
           <Loader className="w-8 h-8 animate-spin text-[#D4AF7A]" />
@@ -179,35 +185,34 @@ const ProcedimentosAdmin = () => {
           {procedimentos.map((p, i) => (
             <div
               key={p.id}
-              className={`flex items-center gap-4 px-5 py-4 transition-colors ${
+              className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 sm:px-5 py-4 transition-colors ${
                 !p.ativo ? 'opacity-50 bg-gray-50' : 'hover:bg-[#F5F1EB]/50'
               } ${i !== 0 ? 'border-t border-[#F5F1EB]' : ''}`}
             >
-              {/* Grip */}
-              <GripVertical className="w-4 h-4 text-[#ccc] flex-shrink-0" />
+              {/* Linha 1 (mobile) / único bloco (desktop): grip + número + nome + badge */}
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <GripVertical className="hidden sm:block w-4 h-4 text-[#ccc] flex-shrink-0" />
 
-              {/* Número / ordem */}
-              <span className="w-8 h-8 bg-[#F5F1EB] rounded-lg flex items-center justify-center text-xs font-bold text-[#8B7355] flex-shrink-0">
-                {p.ordem}
-              </span>
+                <span className="w-7 h-7 sm:w-8 sm:h-8 bg-[#F5F1EB] rounded-lg flex items-center justify-center text-xs font-bold text-[#8B7355] flex-shrink-0">
+                  {p.ordem}
+                </span>
 
-              {/* Nome */}
-              <span className={`flex-1 font-semibold ${p.ativo ? 'text-[#5D4E37]' : 'text-[#999] line-through'}`}>
-                {p.nome}
-              </span>
+                <span className={`flex-1 min-w-0 font-semibold text-sm sm:text-base truncate ${p.ativo ? 'text-[#5D4E37]' : 'text-[#999] line-through'}`}>
+                  {p.nome}
+                </span>
 
-              {/* Badge status */}
-              <span className={`text-xs px-3 py-1 rounded-full font-semibold flex-shrink-0 ${
-                p.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-500'
-              }`}>
-                {p.ativo ? 'Ativo' : 'Inativo'}
-              </span>
+                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 ${
+                  p.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-500'
+                }`}>
+                  {p.ativo ? 'Ativo' : 'Inativo'}
+                </span>
+              </div>
 
-              {/* Ações */}
-              <div className="flex gap-1 flex-shrink-0">
+              {/* Linha 2 (mobile) / ao lado (desktop): ações — touch target maior */}
+              <div className="flex items-center justify-end gap-1.5 sm:gap-1 flex-shrink-0 sm:ml-2">
                 <button
                   onClick={() => toggleAtivo(p)}
-                  className="p-2 hover:bg-[#F5F1EB] rounded-lg transition"
+                  className="p-2.5 sm:p-2 hover:bg-[#F5F1EB] rounded-lg transition"
                   title={p.ativo ? 'Desativar' : 'Ativar'}
                 >
                   {p.ativo
@@ -217,14 +222,16 @@ const ProcedimentosAdmin = () => {
                 </button>
                 <button
                   onClick={() => openEdit(p)}
-                  className="p-2 hover:bg-[#F5F1EB] rounded-lg transition"
+                  className="p-2.5 sm:p-2 hover:bg-[#F5F1EB] rounded-lg transition"
+                  title="Editar"
                 >
                   <Pencil className="w-4 h-4 text-[#D4AF7A]" />
                 </button>
                 <button
                   onClick={() => handleDelete(p.id)}
                   disabled={deletingId === p.id}
-                  className="p-2 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
+                  className="p-2.5 sm:p-2 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
+                  title="Excluir"
                 >
                   {deletingId === p.id
                     ? <Loader className="w-4 h-4 text-red-400 animate-spin" />
