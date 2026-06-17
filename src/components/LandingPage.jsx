@@ -220,10 +220,16 @@ const LandingPage = () => {
             <Sparkles className="w-3 h-3 text-[#D4AF7A]" />
             {hero?.badge || DEFAULT_HERO.badge}
           </div>
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-extrabold text-[#5D4E37] leading-[1] sm:leading-[.9] mb-2 sm:mb-3 gold-bar break-words">
+          {/* FIX: removido "break-words" (forçava quebra no MEIO da palavra
+              em telas >=1024px, onde o grid vira 2 colunas e a largura
+              disponível cai para ~50%). Removido também o estágio "lg"
+              intermediário — os breakpoints sm/xl voltam a ser idênticos
+              ao design desktop original aprovado; apenas o tamanho base
+              (mobile, <640px) foi reduzido para não cortar "Extraordinária". */}
+          <h1 className="text-4xl sm:text-7xl xl:text-8xl font-extrabold text-[#5D4E37] leading-[1] sm:leading-[.9] mb-2 sm:mb-3 gold-bar">
             {hero?.titulo || DEFAULT_HERO.titulo}
           </h1>
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold italic text-[#D4AF7A] leading-[1] sm:leading-[.9] mb-6 sm:mb-8 break-words">
+          <h1 className="text-4xl sm:text-7xl xl:text-8xl font-bold italic text-[#D4AF7A] leading-[1] sm:leading-[.9] mb-6 sm:mb-8">
             {hero?.subtitulo || DEFAULT_HERO.subtitulo}
           </h1>
           <p className="text-base sm:text-lg text-[#666] leading-relaxed max-w-md mb-10">
