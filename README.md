@@ -1,16 +1,94 @@
-# React + Vite
+# Débora Santiago - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema web institucional e painel administrativo para clínica especializada em fisioterapia pós-cirurgia plástica.
 
-Currently, two official plugins are available:
+## Sobre o Projeto
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Este projeto consiste em uma aplicação React desenvolvida para gerenciamento completo do conteúdo do site institucional da clínica Débora Santiago.
 
-## React Compiler
+Através do painel administrativo é possível gerenciar:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* Hero da página inicial
+* Sobre a clínica
+* Serviços
+* Procedimentos
+* Depoimentos
+* Blog
+* FAQ
+* Galeria de mídias
+* Instagram
+* Configurações gerais do site
+* SEO
 
-## Expanding the ESLint configuration
+## Tecnologias Utilizadas
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* React
+* Vite
+* React Router DOM
+* Tailwind CSS
+* Axios
+* Context API
+
+## Funcionalidades
+
+### Site Público
+
+* Landing Page Responsiva
+* Página Sobre
+* Procedimentos
+* Serviços
+* Depoimentos
+* FAQ
+* Blog
+* Integração Instagram
+* SEO otimizado
+
+### Painel Administrativo
+
+* Autenticação JWT
+* Dashboard
+* CRUD completo de conteúdo
+* Upload de imagens
+* Upload de vídeos
+* Configurações do site
+* Gestão de blog
+
+## Responsividade
+
+O projeto foi desenvolvido para:
+
+* Desktop
+* Notebook
+* Tablet
+* Smartphone
+
+## Segurança
+
+* Rotas protegidas
+* Validação de autenticação
+* Controle de acesso administrativo
+* Sanitização de conteúdo
+
+## Instalação
+
+```bash
+npm install
+```
+
+## Ambiente de Desenvolvimento
+
+```bash
+npm run dev
+```
+
+## Build de Produção
+
+```bash
+npm run build
+```
+
+## Autor
+
+Alex Bueno
+
+Desenvolvedor Full Stack
